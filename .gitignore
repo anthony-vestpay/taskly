@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env
+*.db
+*.db-journal
+.pnpm-store/
+tsconfig.tsbuildinfo
+.DS_Store

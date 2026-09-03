@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  title     String
+  details   String?
+  // SQLite does not support Prisma enum types, so these remain strings.
+  status    String   @default("TODO")
+  priority  String   @default("MEDIUM")
+  dueDate   DateTime?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([status, position])
+}
