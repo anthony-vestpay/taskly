@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Search, SlidersHorizontal, MoreHorizontal, CalendarDays, X, Sparkles, MessageCircle, Send } from 'lucide-react';
+import { Plus, Search, SlidersHorizontal, MoreHorizontal, CalendarDays, X, Sparkles, MessageCircle, Send, Sun, Moon } from 'lucide-react';
 
 type Status = 'TODO' | 'IN_PROGRESS' | 'TEST' | 'DEPLOYED' | 'COMPLETE';
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
@@ -31,6 +31,18 @@ export default function Home() {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState('');
   const currentUser = users.find(u => u.id === currentUserId);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch {}
+  }
 
   useEffect(() => {
     fetch('/api/tasks')
@@ -118,7 +130,7 @@ export default function Home() {
     } catch {} finally { setCommentSubmitting(false); }
   }
 
-  return <main className="shell"><header className="topbar"><div className="brand"><div className="brandmark"><Sparkles size={16}/></div><span>taskly</span></div><div className="workspace"><div className="avatar">JD</div><span>Jordan's workspace</span><span className="chevron">⌄</span></div><div className="top-actions"><button className="icon-button"><span className="help">?</span></button><select className="user-switcher" value={currentUserId} onChange={e => setCurrentUserId(e.target.value)} style={currentUser ? { background: currentUser.color } : undefined} aria-label="Current user">{users.map(u => <option key={u.id} value={u.id}>{u.initials} — {u.name}</option>)}</select></div></header>
+  return <main className="shell"><header className="topbar"><div className="brand"><div className="brandmark"><Sparkles size={16}/></div><span>taskly</span></div><div className="workspace"><div className="avatar">JD</div><span>Jordan's workspace</span><span className="chevron">⌄</span></div><div className="top-actions"><button type="button" className="theme-toggle" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}>{theme === 'dark' ? <Sun size={15}/> : <Moon size={15}/>}</button><button className="icon-button"><span className="help">?</span></button><select className="user-switcher" value={currentUserId} onChange={e => setCurrentUserId(e.target.value)} style={currentUser ? { background: currentUser.color } : undefined} aria-label="Current user">{users.map(u => <option key={u.id} value={u.id}>{u.initials} — {u.name}</option>)}</select></div></header>
     <section className="hero"><div><div className="eyebrow">PROJECT / PRODUCT</div><h1>Product launch <span>✦</span></h1><p>Keep the momentum going. Small steps, shipped well.</p></div><div className="hero-actions"><button className="secondary"><SlidersHorizontal size={15}/> Filter</button><button className="primary" onClick={() => {setActive(null); setModal(true)}}><Plus size={16}/> Add task</button></div></section>
     <div className="toolbar"><div className="search"><Search size={16}/><input placeholder="Search tasks..." value={query} onChange={e => setQuery(e.target.value)}/>{query && <button onClick={() => setQuery('')}><X size={14}/></button>}</div><div className="view-meta"><span className="dot green"></span> All changes saved <span className="divider"></span><span>{tasks.length} tasks</span></div></div>
     <section className="board">{columns.map(col => <div className={`column ${dropTarget === col.key ? 'column-drop-target' : ''}`} key={col.key} onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (dropTarget !== col.key) setDropTarget(col.key); }} onDrop={e => handleDrop(e, col.key)}>
